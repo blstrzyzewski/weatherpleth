@@ -1,0 +1,16 @@
+Sunday, August 9th
+
+[ x ] Add map data to map opject
+[ x ] Fetch map data
+
+Monday, August 10th
+
+[ x ] Get geojson files for countries and subdivisions
+[ x ] Lon,lat ==> subdivisions average
+
+Tuesday, August 11th
+
+[  ] Clean up db code
+[  ] Store index of subdivision in database
+[ x ] get countries geojson
+[  ] git repo

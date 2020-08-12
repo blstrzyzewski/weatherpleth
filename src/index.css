@@ -1,0 +1,22 @@
+body{
+  background-color: #121212 !important;
+}
+.slider,.example{
+  width:300px;
+ 
+  margin:auto;
+  margin-top:20%;
+  
+
+}
+.dr-example-container{
+margin-top:5%
+}
+button.btn.btn-outline-primary {
+  margin-left: 100px;
+}
+h1{
+  color:turquoise !important;
+  text-align:center;
+  margin: revert;
+}
