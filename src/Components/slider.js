@@ -5,14 +5,14 @@ import ReactDOM from 'react-dom';
 import { Button,Container,Row,Col } from "shards-react";
 import DataList from './get-data'
 const dataset_options = [
-  { value: 'cruts', label: 'Cru ts' },
-  { value: 'hadisst', label: 'Hadisst' },
+  { value: 1995, label: '1995' },
+  { value: 2011, label: '2011' },
   { value: 'vanilla', label: 'Vanilla' },
 ];
 const variable_options=[
-    {value:'pre',label:'Precipitation'},
-    {value:'sst',label:'Sea temperature'},
-    {value:'cld',label:'Cloud coverage'}
+    {value:'precipitation_mean',label:'Precipitation'},
+    {value:'sst_mean',label:'Sea temperature'},
+    {value:'cld_mean2',label:'Cloud coverage'}
 ]
 function Selector() {
     const[state,setState]=React.useState();
@@ -21,11 +21,14 @@ function Selector() {
     setDataType(selectedOption)
     
     };
-  
+    const handleYear = selectedOption => {
+      setState(selectedOption)
+      
+      };
    //   const { selectedOption } = this.state;
     const renderMap= ()=>{
         //DataList(dataType)
-        ReactDOM.render(<MyMap />, document.getElementById('root'))
+        ReactDOM.render(<MyMap values={{"year":state.value,"dataType":dataType.value,"name":dataType.label}}/>, document.getElementById('root'))
     }
       return (
         <Container className="dr-example-container">
@@ -40,7 +43,7 @@ function Selector() {
         className="slider"
         id='dataset'
          // value={selectedOption}
-         // onChange={handleChange}
+          onChange={handleYear}
           options={dataset_options}
           style={{width:100}}
         /></Col>

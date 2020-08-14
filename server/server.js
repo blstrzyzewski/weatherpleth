@@ -3,7 +3,8 @@ const bodyParser = require('body-parser');
 const pino = require('express-pino-logger')();
 const mysql=require('mysql');
 const util = require('util');
-const dotenv=require('dotenv')
+const dotenv=require('dotenv');
+const fs = require('fs');
 dotenv.config();
 const app = express();
 
@@ -51,6 +52,17 @@ app.get('/api/greeting', (req, res) => {
   res.send(JSON.stringify({ greeting: `Hello ${name}!` }));
 });
 
+app.get('/api/geojson',async (req,res)=>{
+  console.log('route_working')
+  let id=req.query.id;
+ // res.send({"data":"Sdfasdf"})
+ const resultJSON= JSON.parse(fs.readFileSync(`../geojson/${id}.geojson`,'utf8'));
+  
+  res.send(resultJSON);
+  
+
+
+});
 app.get('/api/test',async (req,res)=>{
   console.log('route_working')
  // res.send({"data":"Sdfasdf"})
@@ -64,13 +76,14 @@ app.get('/api/test',async (req,res)=>{
 app.get('/api/data_points',async function(req,res){
   //let dataset=req.query.dataset;
   //console.log(dataset)
-  
+  let variable=req.query.data_var;
+  console.log(variable);
   let month= req.query.month;
   let year = parseInt(req.query.year)
   let min = parseInt(req.query.min);
   let max= parseInt(req.query.max);
  // let sql= `SELECT * FROM precipitation2 WHERE year=${year} AND month='${month}' AND pre>${min} AND pre<${max}`
-    let sql= `SELECT * FROM  cld_mean WHERE year=${year} AND month='${month}' `
+    let sql= `SELECT * FROM  ${variable} WHERE year=${year} AND month='${month}' `
 
   const response= await db.query(sql)
   console.log(response);

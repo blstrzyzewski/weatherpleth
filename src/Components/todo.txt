@@ -10,7 +10,23 @@ Monday, August 10th
 
 Tuesday, August 11th
 
-[  ] Clean up db code
-[  ] Store index of subdivision in database
+[ x ] Clean up db code
+[ x ] Store index of subdivision in database
 [ x ] get countries geojson
-[  ] git repo
+[ x ] git repo
+
+Wednesday, August 12th
+
+[ x ] Get countries/states shapefiles working with precipitation and cld
+[ x ] getHadisst generation routine
+
+Thursday, August 13th
+
+[ x ] Hover effects on data
+[ x ] Legend
+[ x ] Add dropdown support on homepage
+
+Friday August 14th
+
+[  ] Fix weird variable passing to myMap
+[  ] Update legend depending on variable

@@ -13,40 +13,56 @@ function streamToString (stream) {
     })
   }
   
-async function addFeature(geojson){
+async function addFeature(geojson,month,year,variable){
+  console.log('ssssssssssssssssssssssss',month,year,variable);
   const options={
     method: 'get',
     url: '/api/data_points',
     params:{
+      data_var:variable,
+    //dataset:value.value,
+    month:month,
+    year:year,
+    min:95,
+    max:2
+    } 
+  }
+  console.log(options)
+  const res= await axios(options);
+  console.log(res.data)
+    let entry_map={};
+
+for await(const item of res.data){
+    let name =item.location;
+    let index=item.indexval;
+    geojson.features[index].properties[variable.slice(0,3)]=item[variable.slice(0,3)];
+}
+return geojson;
+}
+export default async function getGJS(year,variable,month){
+  console.log('llllllllll',year,variable);
+  let geojsonId;
+  if (variable=='sst_mean'){
+    
+    geojsonId='oceanSubdivisions'
+  }
+  else(geojsonId='countries')
+  const options={
+    method: 'get',
+    url: '/api/geojson',
+    params:{
+    id:geojsonId,
     //dataset:value.value,
     month:'DEC',
-    year:2012,
+    year:year,
     min:95,
     max:2
     } 
   }
   const res= await axios(options);
-  console.log(res.data)
-    let entry_map={};
-  for await(const [index,item ]of geojson.features.entries()){
-   // console.log(item.properties.name,index)
-    entry_map[item.properties.name]=index;
-  }
-for await(const item of res.data){
-    let name =item.location;
-    let index=entry_map[name];
-    geojson.features[index].properties["cld"]=item.cld;
-}
-return geojson;
-}
-export default async function getGJS(){
-    
-    const dataset = await Dataset.load(path);
-    let file=dataset.resources[2];
-    const stream = await file.stream();
-    const result = await streamToString(stream);
-    let resultJSON=JSON.parse(result);
-    let response= await addFeature(resultJSON);
+
+    console.log(res.data);
+    let response= await addFeature(res.data,month.value,year,variable);
 
     return response;
     

@@ -12,26 +12,7 @@ function categorize(value){
   return "low"
 
 }
-function getAverage(arr){
-  let output=[]
-  for (let i=0;i<arr.length/4;i+=4){
-    
-    let average=0;
-    let lon_av=0;
-    let lat_av=0;
 
-    for(let j=0;j<4;j++){
-     
-      let item=arr[i+j];
-      console.log(item.lon,item.lat)
-      lon_av+=item.lon;
-      lat_av+=item.lat;
-      average+=item.sst;
-    }
-    output.push({"sst":average/4,"lon":lon_av/4,"lat":lat_av/4})
-  }
-  return output;
-}
 function createPolygon(lon,lat){
   let output=[]
   output.push([lon+0.25,lat+0.25]);
