@@ -5,11 +5,16 @@ function classifyData(data) {
   let brew = new classybrew();
   brew.setSeries(data);
   brew.setNumClasses(5);
-  brew.setColorCode("BuGn");
+  brew.setColorCode(
+    brew.getColorCodes()[Math.floor(Math.random() * Math.floor(20))]
+  );
   brew.classify("jenks");
   return {
     colors: brew.getColors(),
-    breaks: brew.getBreaks().map((item) => {
+    breaks: brew.getBreaks().map((item, index) => {
+      if (index === 0) {
+        return Math.trunc(item);
+      }
       return Math.round(item);
     }),
   };

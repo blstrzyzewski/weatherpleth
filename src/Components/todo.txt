@@ -53,8 +53,10 @@ Monday, August 17th
 
 Tuesday, August 18th
 
-[  ] clean up client side
-[  ] push
+[ x ] clean up client side
+[ x ] push
 
-Wednesday, Augusr 19th
-[  ] deploy?
+Wednesday, August 19th
+[ x ] implement range/color finder
+[ x ] error checking on home screen
+[  ] deploy

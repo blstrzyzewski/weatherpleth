@@ -1,8 +1,8 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useState } from "react";
 import MyMap from "./map";
 import Select from "react-select";
 import ReactDOM from "react-dom";
-import { Button, Container, Row, Col } from "shards-react";
+import { Button, Container, Row, Col, Alert } from "shards-react";
 import NavBar from "./navbar";
 const dataset_options = [
   { value: 1995, label: "1995" },
@@ -18,7 +18,8 @@ const variable_options = [
 ];
 function Home() {
   const [state, setState] = React.useState();
-  const [dataType, setDataType] = React.useState();
+  const [dataType, setDataType] = React.useState({ value: "empty" });
+  const [alert, setAlert] = React.useState(false);
   const handleChange = (selectedOption) => {
     setDataType(selectedOption);
   };
@@ -28,7 +29,13 @@ function Home() {
   //   const { selectedOption } = this.state;
   const renderMap = async () => {
     //DataList(dataType)
-
+    if (dataType.value === "empty") {
+      setAlert(true);
+      setTimeout(() => {
+        setAlert(false);
+      }, 1500);
+      return;
+    }
     ReactDOM.render(
       <MyMap values={{ dataType: dataType.value, name: dataType.label }} />,
       document.getElementById("root")
@@ -72,6 +79,9 @@ function Home() {
               <Button size="lg" outline onClick={renderMap}>
                 Submit
               </Button>
+              <Alert className="Alert" open={alert} theme="danger">
+                Please select a feature
+              </Alert>
             </div>
           </Col>
         </Row>

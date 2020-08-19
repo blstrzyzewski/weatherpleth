@@ -15,7 +15,7 @@ function resetHighlight(layer) {
 }
 let colorArray = ["#ca0020", "#f4a582", "#f7f7f7", "#92c5de", "#0571b0"];
 let colorArray2 = ["#08519c", "#3182bd", "#6baed6", "#bdd7e7", "#eff3ff"];
-function getColor(d, rangeArray) {
+function getColor(d, rangeArray, colorArray) {
   return d > rangeArray[4]
     ? colorArray[0]
     : d > rangeArray[3]
@@ -30,7 +30,7 @@ function getRandomInt() {
   return Math.floor(Math.random() * Math.floor(10000)).toString();
 }
 
-function getFeatureOptions(rangeArray) {
+function getFeatureOptions(rangeArray, colorArray) {
   return [
     { value: `> ${rangeArray[4]}`, label: colorArray[0] },
     { value: `${rangeArray[3]} - ${rangeArray[4]}`, label: colorArray[1] },
@@ -103,7 +103,10 @@ function MyMap(values) {
   const [areas, setAreas] = useState("countriesWithSubdivisions");
   const [dataVar, setDataVar] = useState(values.values.dataType);
   const [name, setName] = useState(values.values.name);
-
+  const [featureOptions, setFeatureOptions] = useState(
+    getFeatureOptions(featureMap[dataVar.slice(0, 3)], colorArray)
+  );
+  const [loading, setLoading] = useState(true);
   let dataset;
   if (dataVar.slice(0, 3) == "sst") {
     dataset = "HadIsst";
@@ -111,7 +114,7 @@ function MyMap(values) {
     dataset = "Cru - ts 4.03";
   }
   let rangeArray = featureMap[dataVar.slice(0, 3)];
-  let featureOptions = getFeatureOptions(rangeArray);
+
   useEffect(() => {
     let isMounted = true;
     const fetchData = async () => {
@@ -119,16 +122,20 @@ function MyMap(values) {
         console.log("states", states.length);
 
         const res = await getGJS(year, dataVar, month);
-
+        setLoading(false);
         if (isMounted) {
           setStates(res);
+
+          setFeatureOptions(getFeatureOptions(res.breaks, res.colors));
+          console.log("FO", featureOptions);
+        }
+        if (states.length) {
         }
         setKey(getRandomInt(10000000));
-        console.log(states);
+
         return () => {
           isMounted = false;
         };
-        //  ReactDOM.render(map(res.features), document.getElementById('root'))
       } catch (err) {
         console.log(err);
       }
@@ -138,7 +145,11 @@ function MyMap(values) {
 
   const sty = function (feature) {
     return {
-      fillColor: getColor(feature.properties[dataVar.slice(0, 3)], rangeArray),
+      fillColor: getColor(
+        feature.properties[dataVar.slice(0, 3)],
+        states.breaks,
+        states.colors
+      ),
       weight: 2,
       opacity: 1,
       color: "white",
@@ -164,124 +175,130 @@ function MyMap(values) {
   return (
     <Fragment>
       <NavBar />
-      <Map
-        className="map"
-        center={position}
-        // maxBounds= {[[40,-120],[40,120],[-40,120],[-40,-120]]}
-        // maxBoundsViscosity= {'1.0'}
-        zoom="1.5"
-        style={{
-          border: "2px solid white",
-          height: "70vh",
-          width: "70%",
-          marginRight: "5% ",
-          float: "right",
-          display: "inline-block",
-          marginTop: "7vh",
-        }}
-      >
-        <TileLayer
-          attribution='Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>'
-          url="https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiYnN0cnp5emV3c2tpIiwiYSI6ImNrZGV4MDI0ZDFtMnIyd2pxb3RsYTByb3QifQ.t63p1Ba9N2a4-Y1onqPusQ"
-          accessToken="pk.eyJ1IjoiYnN0cnp5emV3c2tpIiwiYSI6ImNrZGV4MDI0ZDFtMnIyd2pxb3RsYTByb3QifQ.t63p1Ba9N2a4-Y1onqPusQ"
-          id="mapbox/streets-v11"
-        />
-        <GeoJSON
-          onEachFeature={(feature, layer) =>
-            layer.bindPopup(
-              `${popupName(dataVar.slice(0, 3), feature)} \n ${
-                feature.properties[dataVar.slice(0, 3)]
-              } ${rangeArray[5]}`
-            )
-          }
-          key={key}
-          data={states}
-          style={sty}
-        />
-        <Control position="bottomright">
-          <div className="legend" style={{ backgroundColor: "white" }}>
-            <h6 style={{ textTransform: "capitalize" }}>
-              {" "}
-              {`${name} ${rangeArray[5]}`}
-            </h6>
-            {featureOptions.map((item) => {
-              return (
-                <Fragment>
-                  <i style={{ backgroundColor: item.label }}></i>
-                  {item.value}
-                  <br></br>
-                </Fragment>
-              );
-            })}
+      {loading ? (
+        <h1>Hi</h1>
+      ) : (
+        <Fragment>
+          <Map
+            className="map"
+            center={position}
+            // maxBounds= {[[40,-120],[40,120],[-40,120],[-40,-120]]}
+            // maxBoundsViscosity= {'1.0'}
+            zoom="1.5"
+            style={{
+              border: "2px solid white",
+              height: "70vh",
+              width: "70%",
+              marginRight: "5% ",
+              float: "right",
+              display: "inline-block",
+              marginTop: "7vh",
+            }}
+          >
+            <TileLayer
+              attribution='Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>'
+              url="https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiYnN0cnp5emV3c2tpIiwiYSI6ImNrZGV4MDI0ZDFtMnIyd2pxb3RsYTByb3QifQ.t63p1Ba9N2a4-Y1onqPusQ"
+              accessToken="pk.eyJ1IjoiYnN0cnp5emV3c2tpIiwiYSI6ImNrZGV4MDI0ZDFtMnIyd2pxb3RsYTByb3QifQ.t63p1Ba9N2a4-Y1onqPusQ"
+              id="mapbox/streets-v11"
+            />
+            <GeoJSON
+              onEachFeature={(feature, layer) =>
+                layer.bindPopup(
+                  `${popupName(dataVar.slice(0, 3), feature)} \n ${
+                    feature.properties[dataVar.slice(0, 3)]
+                  } ${rangeArray[5]}`
+                )
+              }
+              key={key}
+              data={states}
+              style={sty}
+            />
+            <Control position="bottomright">
+              <div className="legend" style={{ backgroundColor: "white" }}>
+                <h6 style={{ textTransform: "capitalize" }}>
+                  {" "}
+                  {`${name} ${rangeArray[5]}`}
+                </h6>
+                {featureOptions.map((item) => {
+                  return (
+                    <Fragment>
+                      <i style={{ backgroundColor: item.label }}></i>
+                      {item.value}
+                      <br></br>
+                    </Fragment>
+                  );
+                })}
+              </div>
+            </Control>
+          </Map>
+          <div
+            style={{
+              width: "10%",
+              margin: "auto",
+              display: "inline-block",
+              marginTop: "7vh",
+            }}
+          >
+            <Row>
+              <Col>
+                <Select
+                  className="map-dropdown"
+                  id="month"
+                  // value={selectedOption}
+                  onChange={(selectedOption) => {
+                    setMonth(selectedOption.value);
+                  }}
+                  options={monthOptions}
+                  defaultValue={{ label: "January", value: "JAN" }}
+                />
+              </Col>
+              <Col>
+                <Select
+                  className="map-dropdown"
+                  id="month"
+                  // value={selectedOption}
+                  onChange={(selectedOption) => {
+                    setYear(selectedOption.value);
+                  }}
+                  options={yearOptions}
+                  defaultValue={{ label: "2011", value: 2011 }}
+                />
+              </Col>
+              <Col>
+                <Select
+                  className="map-dropdown"
+                  id="month"
+                  // value={selectedOption}
+                  onChange={handleVarChange}
+                  options={variable_options}
+                  defaultValue={{
+                    label: values.values.name,
+                    value: values.values.dataType,
+                  }}
+                />
+              </Col>
+              <Col>
+                <Select
+                  className="map-dropdown"
+                  id="month"
+                  // value={selectedOption}
+                  onChange={(selectedOption) => {
+                    setAreas(selectedOption.value);
+                  }}
+                  options={areaOptions}
+                  defaultValue={{
+                    label: "Countries/subivisions",
+                    value: "countriesWithSubdivisions",
+                  }}
+                />
+              </Col>
+            </Row>
           </div>
-        </Control>
-      </Map>
-      <div
-        style={{
-          width: "10%",
-          margin: "auto",
-          display: "inline-block",
-          marginTop: "7vh",
-        }}
-      >
-        <Row>
-          <Col>
-            <Select
-              className="map-dropdown"
-              id="month"
-              // value={selectedOption}
-              onChange={(selectedOption) => {
-                setMonth(selectedOption.value);
-              }}
-              options={monthOptions}
-              defaultValue={{ label: "January", value: "JAN" }}
-            />
-          </Col>
-          <Col>
-            <Select
-              className="map-dropdown"
-              id="month"
-              // value={selectedOption}
-              onChange={(selectedOption) => {
-                setYear(selectedOption.value);
-              }}
-              options={yearOptions}
-              defaultValue={{ label: "2011", value: 2011 }}
-            />
-          </Col>
-          <Col>
-            <Select
-              className="map-dropdown"
-              id="month"
-              // value={selectedOption}
-              onChange={handleVarChange}
-              options={variable_options}
-              defaultValue={{
-                label: values.values.name,
-                value: values.values.dataType,
-              }}
-            />
-          </Col>
-          <Col>
-            <Select
-              className="map-dropdown"
-              id="month"
-              // value={selectedOption}
-              onChange={(selectedOption) => {
-                setAreas(selectedOption.value);
-              }}
-              options={areaOptions}
-              defaultValue={{
-                label: "Countries/subivisions",
-                value: "countriesWithSubdivisions",
-              }}
-            />
-          </Col>
-        </Row>
-      </div>
 
-      <div style={{ height: "100px" }}></div>
-      <p style={{ textAlign: "center" }}>Dataset used: {dataset}</p>
+          <div style={{ height: "100px" }}></div>
+          <p style={{ textAlign: "center" }}>Dataset used: {dataset}</p>
+        </Fragment>
+      )}
     </Fragment>
   );
 }
