@@ -1,69 +1,67 @@
-import axios from 'axios'
-const {Dataset} = require('data.js');
+import axios from "axios";
+import classybrew from "classybrew";
 
-const path = 'https://datahub.io/core/geo-ne-admin1/datapackage.json'
-
-
-function streamToString (stream) {
-    const chunks = []
-    return new Promise((resolve, reject) => {
-      stream.on('data', chunk => chunks.push(chunk))
-      stream.on('error', reject)
-      stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')))
-    })
-  }
-  
-async function addFeature(geojson,month,year,variable){
-  console.log('ssssssssssssssssssssssss',month,year,variable);
-  const options={
-    method: 'get',
-    url: '/api/data_points',
-    params:{
-      data_var:variable,
-    //dataset:value.value,
-    month:month,
-    year:year,
-    min:95,
-    max:2
-    } 
-  }
-  console.log(options)
-  const res= await axios(options);
-  console.log(res.data)
-    let entry_map={};
-
-for await(const item of res.data){
-    let name =item.location;
-    let index=item.indexval;
-    geojson.features[index].properties[variable.slice(0,3)]=item[variable.slice(0,3)];
+function classifyData(data) {
+  let brew = new classybrew();
+  brew.setSeries(data);
+  brew.setNumClasses(5);
+  brew.setColorCode("BuGn");
+  brew.classify("jenks");
+  return {
+    colors: brew.getColors(),
+    breaks: brew.getBreaks().map((item) => {
+      return Math.round(item);
+    }),
+  };
 }
-return geojson;
+async function addFeature(geojson, month, year, variable) {
+  //console.log('ssssssssssssssssssssssss',month,year,variable);
+  const options = {
+    method: "get",
+    url: "/api/data_points",
+    params: {
+      data_var: variable,
+      month: month,
+      year: year,
+    },
+  };
+  console.log(options);
+  const res = await axios(options);
+  //console.log(res.data)
+  let entry_map = {};
+  let dataValues = [];
+  for await (const item of res.data) {
+    let name = item.location;
+    let index = item.indexval;
+    geojson.features[index].properties[variable.slice(0, 3)] =
+      item[variable.slice(0, 3)];
+    dataValues.push(item[variable.slice(0, 3)]);
+  }
+  let returnObject = classifyData(dataValues);
+  geojson.colors = returnObject.colors;
+  geojson.breaks = returnObject.breaks;
+  return geojson;
 }
-export default async function getGJS(year,variable,month){
-  console.log('llllllllll',year,variable);
+export default async function getGJS(year, variable, month) {
+  console.log("llsllllsllll", year, variable, month);
   let geojsonId;
-  if (variable=='sst_mean'){
-    
-    geojsonId='oceanSubdivisions'
+  if (variable == "sst_mean") {
+    geojsonId = "oceanSubNew";
+  } else {
+    geojsonId = "worldWithSubdivisionsSimp";
   }
-  else(geojsonId='countries')
-  const options={
-    method: 'get',
-    url: '/api/geojson',
-    params:{
-    id:geojsonId,
-    //dataset:value.value,
-    month:'DEC',
-    year:year,
-    min:95,
-    max:2
-    } 
-  }
-  const res= await axios(options);
+  console.log("sssssssssssssssssssssssssss", geojsonId);
+  const options = {
+    method: "get",
+    url: "/api/geojson",
+    params: {
+      id: geojsonId,
+    },
+  };
+  const res = await axios(options);
 
-    console.log(res.data);
-    let response= await addFeature(res.data,month.value,year,variable);
+  console.log(res.data);
+  let response = await addFeature(res.data, month, year, variable);
 
-    return response;
-    
+  return response;
 }

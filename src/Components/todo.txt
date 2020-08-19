@@ -22,11 +22,39 @@ Wednesday, August 12th
 
 Thursday, August 13th
 
-[ x ] Hover effects on data
+[ x ] Hover/click effects on data
 [ x ] Legend
 [ x ] Add dropdown support on homepage
 
-Friday August 14th
+Friday, August 14th
 
-[  ] Fix weird variable passing to myMap
-[  ] Update legend depending on variable
+[ x ] Fix weird variable passing to myMap
+[ x ] Update legend depending on variable
+[ x ] Split up server code
+
+Saturday, August 15th
+
+[ x ] Generate countries with subdivisions geojson
+[ x ] Add more data variable options
+
+Sunday, August 16th
+
+[ x ] Get all datasets working 2011-2018 with countries w/ subdivisions geojson
+[ x ] work on front-end
+
+Monday, August 17th
+
+[ x ] add units to legend and popups
+[ x ] remove name from SST popups
+[ x ] fix ocean geojson
+[ x ] About page
+[ x ] updating when var changes
+
+
+Tuesday, August 18th
+
+[  ] clean up client side
+[  ] push
+
+Wednesday, Augusr 19th
+[  ] deploy?
