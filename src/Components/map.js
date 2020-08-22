@@ -1,30 +1,24 @@
-import React, { Component, useState, useEffect, Fragment } from "react";
-import ReactDOM from "react-dom";
+import React, { useState, useEffect, Fragment } from "react";
+import Loader from "./Loader";
 import Select from "react-select";
-import { Map, TileLayer, GeoJSON, MapControl, maxBounds } from "react-leaflet";
+import { Map, TileLayer, GeoJSON } from "react-leaflet";
 import NavBar from "./navbar";
 import Control from "react-leaflet-control";
 import getGJS from "./land-areas";
-import { Button, Container, Row, Col } from "shards-react";
-import { LatLngBounds } from "leaflet";
-function highlightFeature(layer) {
-  layer.openPopup();
-}
-function resetHighlight(layer) {
-  layer.closePopup();
-}
+import { Row, Col } from "shards-react";
+
 let colorArray = ["#ca0020", "#f4a582", "#f7f7f7", "#92c5de", "#0571b0"];
 let colorArray2 = ["#08519c", "#3182bd", "#6baed6", "#bdd7e7", "#eff3ff"];
 function getColor(d, rangeArray, colorArray) {
   return d > rangeArray[4]
-    ? colorArray[0]
+    ? colorArray[4]
     : d > rangeArray[3]
-    ? colorArray[1]
+    ? colorArray[3]
     : d > rangeArray[2]
     ? colorArray[2]
     : d > rangeArray[1]
-    ? colorArray[3]
-    : colorArray[4];
+    ? colorArray[1]
+    : colorArray[0];
 }
 function getRandomInt() {
   return Math.floor(Math.random() * Math.floor(10000)).toString();
@@ -32,11 +26,11 @@ function getRandomInt() {
 
 function getFeatureOptions(rangeArray, colorArray) {
   return [
-    { value: `> ${rangeArray[4]}`, label: colorArray[0] },
-    { value: `${rangeArray[3]} - ${rangeArray[4]}`, label: colorArray[1] },
+    { value: `> ${rangeArray[4]}`, label: colorArray[4] },
+    { value: `${rangeArray[3]} - ${rangeArray[4]}`, label: colorArray[3] },
     { value: `${rangeArray[2]} - ${rangeArray[3]}`, label: colorArray[2] },
-    { value: `${rangeArray[1]} - ${rangeArray[2]}`, label: colorArray[3] },
-    { value: `${rangeArray[0]} - ${rangeArray[1]}`, label: colorArray[4] },
+    { value: `${rangeArray[1]} - ${rangeArray[2]}`, label: colorArray[1] },
+    { value: `${rangeArray[0]} - ${rangeArray[1]}`, label: colorArray[0] },
   ];
 }
 
@@ -176,7 +170,7 @@ function MyMap(values) {
     <Fragment>
       <NavBar />
       {loading ? (
-        <h1>Hi</h1>
+        <Loader />
       ) : (
         <Fragment>
           <Map
