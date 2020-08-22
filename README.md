@@ -1,5 +1,5 @@
 # weatherpleth
 
-##create choropleth maps for various weather features using Cru - ts and HadISST datasets
+## create choropleth maps for various weather features using Cru - ts and HadISST datasets
 
-###made using react, node, and MySQL
+### made using react, node, and MySQL
