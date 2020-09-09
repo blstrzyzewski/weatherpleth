@@ -1,11 +1,11 @@
-import React, { useState, useEffect, Fragment } from "react";
+import React, { useState, useEffect, Fragment, createRef } from "react";
 import Loader from "./Loader";
 import Select from "react-select";
 import { Map, TileLayer, GeoJSON } from "react-leaflet";
 import NavBar from "./navbar";
 import Control from "react-leaflet-control";
-import getGJS from "./land-areas";
-import { Row, Col } from "shards-react";
+import { getGJS, getDataByCoords, getDataByLocation } from "./land-areas";
+import { Row, Col, Button } from "shards-react";
 
 let colorArray = ["#ca0020", "#f4a582", "#f7f7f7", "#92c5de", "#0571b0"];
 let colorArray2 = ["#08519c", "#3182bd", "#6baed6", "#bdd7e7", "#eff3ff"];
@@ -42,15 +42,11 @@ let featureMap = {
   frs: [0, 5, 10, 15, 20, "/ month"],
 };
 const yearOptions = [
-  { value: 2011, label: "2011" },
-  { value: 2012, label: "2012" },
-  { value: 2013, label: "2013" },
   { value: 2014, label: "2014" },
   { value: 2015, label: "2015" },
   { value: 2016, label: "2016" },
   { value: 2017, label: "2017" },
   { value: 2018, label: "2018" },
-  { value: 2019, label: "2019" },
 ];
 const areaOptions = [
   { value: "countriesWithSubdivisions", label: "Countries/subdivisions" },
@@ -85,21 +81,25 @@ const style = {
 };
 
 function MyMap(values) {
-  console.log(values.values, "sssssssssssssssssssssssssss");
+  ////console.log(values.values, "sssssssssssssssssssssssssss");
   if (values.values.name == "Diurnal temperature range") {
     values.values.name = "Diurnal temp. range";
   }
 
   const [states, setStates] = useState([]);
-  const [key, setKey] = useState("");
+
+  const [key, setKey] = useState("base");
+  const [key2, setKey2] = useState("base2");
   const [month, setMonth] = useState("JAN");
-  const [year, setYear] = useState(2011);
+  const [year, setYear] = useState(2014);
   const [areas, setAreas] = useState("countriesWithSubdivisions");
   const [dataVar, setDataVar] = useState(values.values.dataType);
   const [name, setName] = useState(values.values.name);
+  const [update, setUpdate] = useState(false);
   const [featureOptions, setFeatureOptions] = useState(
     getFeatureOptions(featureMap[dataVar.slice(0, 3)], colorArray)
   );
+  const [statesZoom, setStatesZoom] = useState([]);
   const [loading, setLoading] = useState(true);
   let dataset;
   if (dataVar.slice(0, 3) == "sst") {
@@ -110,10 +110,20 @@ function MyMap(values) {
   let rangeArray = featureMap[dataVar.slice(0, 3)];
 
   useEffect(() => {
+    if (states.features) {
+      console.log("states", states.features.length);
+    }
+    if (update) {
+      console.log("op");
+      if (update > 1) {
+        setUpdate(0);
+      }
+      return;
+    }
     let isMounted = true;
     const fetchData = async () => {
       try {
-        console.log("states", states.length);
+        ////console.log("states", states.length);
 
         const res = await getGJS(year, dataVar, month);
         setLoading(false);
@@ -121,7 +131,7 @@ function MyMap(values) {
           setStates(res);
 
           setFeatureOptions(getFeatureOptions(res.breaks, res.colors));
-          console.log("FO", featureOptions);
+          //console.log("FO", featureOptions);
         }
         if (states.length) {
         }
@@ -131,11 +141,11 @@ function MyMap(values) {
           isMounted = false;
         };
       } catch (err) {
-        console.log(err);
+        //console.log(err);
       }
     };
     fetchData();
-  }, [month, year, dataVar]);
+  }, [month, year, dataVar, update, key2]);
 
   const sty = function (feature) {
     return {
@@ -144,18 +154,18 @@ function MyMap(values) {
         states.breaks,
         states.colors
       ),
-      weight: 2,
-      opacity: 1,
+      weight: 1,
+      opacity: 0.5,
       color: "white",
 
-      fillOpacity: 0.7,
+      fillOpacity: 0.5,
     };
   };
   const position = [20, 0];
-  //console.log(states)
+  ////console.log(states)
 
   const handleVarChange = (selectedOption) => {
-    console.log(selectedOption);
+    //console.log(selectedOption);
     setDataVar(selectedOption.value);
     setName(selectedOption.label);
   };
@@ -164,6 +174,19 @@ function MyMap(values) {
       return "";
     }
     return feature.properties.name;
+  }
+  async function updategjs(geojson, variable, month, year, location) {
+    const data = await getDataByLocation(
+      geojson,
+      location,
+      variable,
+      month,
+      year
+    );
+    setStatesZoom(data);
+    console.log(data, "gggggggggggggggggggg", states);
+    setKey2(getRandomInt(10000000));
+    setUpdate(1);
   }
 
   return (
@@ -174,6 +197,22 @@ function MyMap(values) {
       ) : (
         <Fragment>
           <Map
+            /* onViewportChanged={async (viewport) => {
+              if (viewport.zoom > 4) {
+                console.log(states.length);
+                const res = await getDataByCoords(
+                  viewport.center,
+                  dataVar.slice(0, 3),
+                  month,
+                  year,
+                  states
+                );
+                setStatesZoom(res);
+                setZoomState(true);
+                console.log(states.length);
+                setUpdate(1);
+              }
+            }} */
             className="map"
             center={position}
             // maxBounds= {[[40,-120],[40,120],[-40,120],[-40,-120]]}
@@ -195,6 +234,39 @@ function MyMap(values) {
               accessToken="pk.eyJ1IjoiYnN0cnp5emV3c2tpIiwiYSI6ImNrZGV4MDI0ZDFtMnIyd2pxb3RsYTByb3QifQ.t63p1Ba9N2a4-Y1onqPusQ"
               id="mapbox/streets-v11"
             />
+
+            <GeoJSON
+              onclick={(e) => {
+                let regionName = e.layer.feature.properties.name;
+
+                document.querySelectorAll(`#${regionName}`).forEach((item) => {
+                  item.addEventListener("click", async (e) => {
+                    const data = await updategjs(
+                      states,
+                      dataVar.slice(0, 3),
+                      month,
+                      year,
+                      regionName
+                    );
+                  });
+                });
+              }}
+              onEachFeature={(feature, layer) => {
+                layer.bindPopup(
+                  `${popupName(dataVar.slice(0, 3), feature)} \n ${
+                    feature.properties[dataVar.slice(0, 3)]
+                  } ${rangeArray[5]} \n 
+                  <Button class='btn btn-outline-primary btn-sm pop-btn' id='${
+                    feature.properties.name
+                  }' 
+                   >Get fine data</Button>`
+                );
+              }}
+              key={key}
+              data={states}
+              style={sty}
+            />
+
             <GeoJSON
               onEachFeature={(feature, layer) =>
                 layer.bindPopup(
@@ -203,10 +275,11 @@ function MyMap(values) {
                   } ${rangeArray[5]}`
                 )
               }
-              key={key}
-              data={states}
+              key={key2}
+              data={statesZoom}
               style={sty}
             />
+
             <Control position="bottomright">
               <div className="legend" style={{ backgroundColor: "white" }}>
                 <h6 style={{ textTransform: "capitalize" }}>
@@ -255,7 +328,7 @@ function MyMap(values) {
                     setYear(selectedOption.value);
                   }}
                   options={yearOptions}
-                  defaultValue={{ label: "2011", value: 2011 }}
+                  defaultValue={{ label: "2014", value: 2014 }}
                 />
               </Col>
               <Col>
@@ -271,7 +344,7 @@ function MyMap(values) {
                   }}
                 />
               </Col>
-              <Col>
+              {/*               <Col>
                 <Select
                   className="map-dropdown"
                   id="month"
@@ -285,7 +358,7 @@ function MyMap(values) {
                     value: "countriesWithSubdivisions",
                   }}
                 />
-              </Col>
+              </Col> */}
             </Row>
           </div>
 
