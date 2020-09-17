@@ -1,5 +1,6 @@
 import axios from "axios";
 import classybrew from "classybrew";
+import { DataList } from "./get-data";
 
 function classifyData(data) {
   let brew = new classybrew();
@@ -20,7 +21,9 @@ function classifyData(data) {
   };
 }
 async function addFeature(geojson, month, year, variable) {
-  //console.log('ssssssssssssssssssssssss',month,year,variable);
+  ////console.log('ssssssssssssssssssssssss',month,year,variable);
+  //named constructor
+
   const options = {
     method: "get",
     url: "/api/data_points",
@@ -30,9 +33,11 @@ async function addFeature(geojson, month, year, variable) {
       year: year,
     },
   };
-  console.log(options);
+
+  //console.log(options);
   const res = await axios(options);
-  //console.log(res.data)
+
+  ////console.log(res.data)
   let entry_map = {};
   let dataValues = [];
   for await (const item of res.data) {
@@ -47,15 +52,60 @@ async function addFeature(geojson, month, year, variable) {
   geojson.breaks = returnObject.breaks;
   return geojson;
 }
-export default async function getGJS(year, variable, month) {
-  console.log("llsllllsllll", year, variable, month);
+export async function getDataByCoords(center, variable, month, year, geojson) {
+  const lon = [center[1] - 5, center[1] + 5];
+  const lat = [center[0] - 5, center[0] + 5];
+  const options = {
+    method: "get",
+    url: "/api/data_points_by_coords",
+    params: {
+      data_var: variable,
+      month: month,
+      year: year,
+      lat: lat,
+      lon: lon,
+    },
+  };
+  console.log(options);
+  const res = await axios(options);
+  let featuresnew = await DataList(res.data);
+  geojson.features = geojson.features.concat(featuresnew);
+  return geojson;
+}
+export async function getDataByLocation(
+  geojson,
+  location,
+  variable,
+  month,
+  year
+) {
+  const options = {
+    method: "get",
+    url: "/api/data_points_by_location",
+    params: {
+      data_var: variable,
+      month: month,
+      year: year,
+      location: location,
+    },
+  };
+  console.log(geojson.features.length);
+  const res = await axios(options);
+  let featuresnew = await DataList(res.data, variable);
+  // console.log(featuresnew);
+  geojson.features = featuresnew;
+  console.log(geojson.features.length);
+  return geojson;
+}
+export async function getGJS(year, variable, month) {
+  //console.log("llsllllsllll", year, variable, month);
   let geojsonId;
   if (variable == "sst_mean") {
     geojsonId = "oceanSubNew";
   } else {
     geojsonId = "worldWithSubdivisionsSimp";
   }
-  console.log("sssssssssssssssssssssssssss", geojsonId);
+  //console.log("sssssssssssssssssssssssssss", geojsonId);
   const options = {
     method: "get",
     url: "/api/geojson",
@@ -65,7 +115,7 @@ export default async function getGJS(year, variable, month) {
   };
   const res = await axios(options);
 
-  console.log(res.data);
+  //console.log(res.data);
   let response = await addFeature(res.data, month, year, variable);
 
   return response;

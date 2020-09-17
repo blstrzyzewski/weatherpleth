@@ -1,11 +1,12 @@
 import React, { useState, useEffect, Fragment, createRef } from "react";
 import Loader from "./Loader";
 import Select from "react-select";
-import { Map, TileLayer, GeoJSON } from "react-leaflet";
+import { Map, TileLayer, GeoJSON, Popup } from "react-leaflet";
 import NavBar from "./navbar";
 import Control from "react-leaflet-control";
 import { getGJS, getDataByCoords, getDataByLocation } from "./land-areas";
 import { Row, Col, Button } from "shards-react";
+import { set } from "core-js/fn/dict";
 
 let colorArray = ["#ca0020", "#f4a582", "#f7f7f7", "#92c5de", "#0571b0"];
 let colorArray2 = ["#08519c", "#3182bd", "#6baed6", "#bdd7e7", "#eff3ff"];
@@ -70,6 +71,9 @@ const monthOptions = [
   { value: "JUL", label: "July" },
   { value: "AUG", label: "August" },
   { value: "SEP", label: "September" },
+  { value: "OCT", label: "October" },
+  { value: "NOV", label: "November" },
+  { value: "DEC", label: "December" },
 ];
 const style = {
   fillColor: "#F28F3B",
@@ -92,6 +96,7 @@ function MyMap(values) {
   const [key2, setKey2] = useState("base2");
   const [month, setMonth] = useState("JAN");
   const [year, setYear] = useState(2014);
+  const [updating, setUpdating] = useState(false);
   const [areas, setAreas] = useState("countriesWithSubdivisions");
   const [dataVar, setDataVar] = useState(values.values.dataType);
   const [name, setName] = useState(values.values.name);
@@ -110,6 +115,7 @@ function MyMap(values) {
   let rangeArray = featureMap[dataVar.slice(0, 3)];
 
   useEffect(() => {
+    setUpdating(true);
     if (states.features) {
       console.log("states", states.features.length);
     }
@@ -136,7 +142,7 @@ function MyMap(values) {
         if (states.length) {
         }
         setKey(getRandomInt(10000000));
-
+        setUpdating(false);
         return () => {
           isMounted = false;
         };
@@ -145,7 +151,7 @@ function MyMap(values) {
       }
     };
     fetchData();
-  }, [month, year, dataVar, update, key2]);
+  }, [month, year, dataVar, update]);
 
   const sty = function (feature) {
     return {
@@ -158,14 +164,31 @@ function MyMap(values) {
       opacity: 0.5,
       color: "white",
 
+      fillOpacity: 0.7,
+    };
+  };
+  const styZoom = function (feature) {
+    return {
+      fillColor: getColor(
+        feature.properties[dataVar.slice(0, 3)],
+        states.breaks,
+        states.colors
+      ),
+      weight: 0.1,
+      opacity: 0.2,
+      color: "white",
+
       fillOpacity: 0.5,
     };
   };
+
   const position = [20, 0];
   ////console.log(states)
 
   const handleVarChange = (selectedOption) => {
     //console.log(selectedOption);
+    setStatesZoom([]);
+    setKey2(getRandomInt(100000));
     setDataVar(selectedOption.value);
     setName(selectedOption.label);
   };
@@ -186,7 +209,6 @@ function MyMap(values) {
     setStatesZoom(data);
     console.log(data, "gggggggggggggggggggg", states);
     setKey2(getRandomInt(10000000));
-    setUpdate(1);
   }
 
   return (
@@ -228,19 +250,38 @@ function MyMap(values) {
               marginTop: "7vh",
             }}
           >
+            {" "}
+            {updating ? (
+              <div id="jj">
+                <h1>Updating...</h1>
+              </div>
+            ) : (
+              <Fragment />
+            )}{" "}
             <TileLayer
               attribution='Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>'
               url="https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiYnN0cnp5emV3c2tpIiwiYSI6ImNrZGV4MDI0ZDFtMnIyd2pxb3RsYTByb3QifQ.t63p1Ba9N2a4-Y1onqPusQ"
               accessToken="pk.eyJ1IjoiYnN0cnp5emV3c2tpIiwiYSI6ImNrZGV4MDI0ZDFtMnIyd2pxb3RsYTByb3QifQ.t63p1Ba9N2a4-Y1onqPusQ"
               id="mapbox/streets-v11"
             />
-
             <GeoJSON
               onclick={(e) => {
                 let regionName = e.layer.feature.properties.name;
-
-                document.querySelectorAll(`#${regionName}`).forEach((item) => {
+                let idName;
+                if (typeof regionName != "string") {
+                  idName = regionName.toString();
+                  idName = "s" + idName;
+                } else {
+                  idName = regionName.replace(/\s+/g, "");
+                  idName = idName.replaceAll(".", "-");
+                }
+                if (idName === "Côted'Ivoire") {
+                  idName = "ivory-coast";
+                }
+                console.log(idName, regionName);
+                document.querySelectorAll(`#${idName}`).forEach((item) => {
                   item.addEventListener("click", async (e) => {
+                    setUpdating(true);
                     const data = await updategjs(
                       states,
                       dataVar.slice(0, 3),
@@ -248,17 +289,29 @@ function MyMap(values) {
                       year,
                       regionName
                     );
+                    setUpdating(false);
                   });
                 });
               }}
               onEachFeature={(feature, layer) => {
+                console.log(feature);
+                let idName;
+                if (dataVar.slice(0, 3) !== "sst") {
+                  idName = feature.properties.name
+                    .toString()
+                    .replace(/\s+/g, "");
+                  idName = idName.replaceAll(".", "-");
+                } else {
+                  idName = "s" + feature.properties.name.toString();
+                }
+                if (idName === "Côted'Ivoire") {
+                  idName = "ivory-coast";
+                }
                 layer.bindPopup(
                   `${popupName(dataVar.slice(0, 3), feature)} \n ${
                     feature.properties[dataVar.slice(0, 3)]
                   } ${rangeArray[5]} \n 
-                  <Button class='btn btn-outline-primary btn-sm pop-btn' id='${
-                    feature.properties.name
-                  }' 
+                  <Button class='btn btn-outline-primary btn-sm pop-btn' id='${idName}' 
                    >Get fine data</Button>`
                 );
               }}
@@ -266,20 +319,16 @@ function MyMap(values) {
               data={states}
               style={sty}
             />
-
             <GeoJSON
               onEachFeature={(feature, layer) =>
                 layer.bindPopup(
-                  `${popupName(dataVar.slice(0, 3), feature)} \n ${
-                    feature.properties[dataVar.slice(0, 3)]
-                  } ${rangeArray[5]}`
+                  ` ${feature.properties[dataVar.slice(0, 3)]} ${rangeArray[5]}`
                 )
               }
               key={key2}
               data={statesZoom}
-              style={sty}
+              style={styZoom}
             />
-
             <Control position="bottomright">
               <div className="legend" style={{ backgroundColor: "white" }}>
                 <h6 style={{ textTransform: "capitalize" }}>
@@ -297,7 +346,7 @@ function MyMap(values) {
                 })}
               </div>
             </Control>
-          </Map>
+          </Map>{" "}
           <div
             style={{
               width: "10%",
@@ -314,6 +363,8 @@ function MyMap(values) {
                   // value={selectedOption}
                   onChange={(selectedOption) => {
                     setMonth(selectedOption.value);
+                    setStatesZoom([]);
+                    setKey2(getRandomInt(1000000));
                   }}
                   options={monthOptions}
                   defaultValue={{ label: "January", value: "JAN" }}
@@ -325,6 +376,8 @@ function MyMap(values) {
                   id="month"
                   // value={selectedOption}
                   onChange={(selectedOption) => {
+                    setStatesZoom([]);
+                    setKey2(getRandomInt(1000000));
                     setYear(selectedOption.value);
                   }}
                   options={yearOptions}
@@ -361,7 +414,6 @@ function MyMap(values) {
               </Col> */}
             </Row>
           </div>
-
           <div style={{ height: "100px" }}></div>
           <p style={{ textAlign: "center" }}>Dataset used: {dataset}</p>
         </Fragment>

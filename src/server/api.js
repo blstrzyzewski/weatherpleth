@@ -1,33 +1,26 @@
-const express=require("express");
-const makeDb = require('./database');
-const router= express.Router();
-const fs = require('fs')
-const db=makeDb();
-router.get('/geojson',async (req,res)=>{
-    
-    let id=req.query.id;
-  
-    const resultJSON= JSON.parse(fs.readFileSync(`../geojson/${id}.geojson`,'utf8'));
-    
-    res.send(resultJSON);
-    
-  
-  
-  });
+const express = require("express");
+const makeDb = require("./database");
+const router = express.Router();
+const fs = require("fs-extra");
+const db = makeDb();
+router.get("/geojson", async (req, res) => {
+  let id = req.query.id;
 
-router.get('/data_points',async function(req,res){
-    
-    
-    let variable=req.query.data_var;  
-    let month= req.query.month;
-    let year = parseInt(req.query.year)
-    let min = parseInt(req.query.min);
-    let max= parseInt(req.query.max);
-    let sql= `SELECT * FROM  ${variable} WHERE year=${year} AND month='${month}' `
-    
-    const response= await db.query(sql)
-    res.send(response);
-    
+  const resultJSON = JSON.parse(
+    fs.readFileSync(`./geojson/${id}.geojson`, "utf8")
+  );
+
+  res.send(resultJSON);
+});
+
+router.get("/data_points", async function (req, res) {
+  let variable = req.query.data_var;
+  let month = req.query.month;
+  let year = parseInt(req.query.year);
+  let sql = `SELECT * FROM  ${variable} WHERE year=${year} AND month='${month}' `;
+
+  const response = await db.query(sql);
+  res.send(response);
 });
 
 router.get("/data_points_by_coords", async function (req, res) {
@@ -56,4 +49,4 @@ router.get("/data_points_by_location", async function (req, res) {
   res.send(response);
 });
 
-  module.exports=router;
+module.exports = router;

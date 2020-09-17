@@ -1,0 +1,165 @@
+body {
+  background-color: #000000 !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 1000'%3E%3Cg %3E%3Ccircle fill='%23000000' cx='50' cy='0' r='50'/%3E%3Cg fill='%23010101' %3E%3Ccircle cx='0' cy='50' r='50'/%3E%3Ccircle cx='100' cy='50' r='50'/%3E%3C/g%3E%3Ccircle fill='%23020202' cx='50' cy='100' r='50'/%3E%3Cg fill='%23030303' %3E%3Ccircle cx='0' cy='150' r='50'/%3E%3Ccircle cx='100' cy='150' r='50'/%3E%3C/g%3E%3Ccircle fill='%23040404' cx='50' cy='200' r='50'/%3E%3Cg fill='%23050505' %3E%3Ccircle cx='0' cy='250' r='50'/%3E%3Ccircle cx='100' cy='250' r='50'/%3E%3C/g%3E%3Ccircle fill='%23060606' cx='50' cy='300' r='50'/%3E%3Cg fill='%23070707' %3E%3Ccircle cx='0' cy='350' r='50'/%3E%3Ccircle cx='100' cy='350' r='50'/%3E%3C/g%3E%3Ccircle fill='%23080808' cx='50' cy='400' r='50'/%3E%3Cg fill='%23090909' %3E%3Ccircle cx='0' cy='450' r='50'/%3E%3Ccircle cx='100' cy='450' r='50'/%3E%3C/g%3E%3Ccircle fill='%230a0a0a' cx='50' cy='500' r='50'/%3E%3Cg fill='%230b0b0b' %3E%3Ccircle cx='0' cy='550' r='50'/%3E%3Ccircle cx='100' cy='550' r='50'/%3E%3C/g%3E%3Ccircle fill='%230c0c0c' cx='50' cy='600' r='50'/%3E%3Cg fill='%230d0d0d' %3E%3Ccircle cx='0' cy='650' r='50'/%3E%3Ccircle cx='100' cy='650' r='50'/%3E%3C/g%3E%3Ccircle fill='%230e0e0e' cx='50' cy='700' r='50'/%3E%3Cg fill='%230e0e0e' %3E%3Ccircle cx='0' cy='750' r='50'/%3E%3Ccircle cx='100' cy='750' r='50'/%3E%3C/g%3E%3Ccircle fill='%230f0f0f' cx='50' cy='800' r='50'/%3E%3Cg fill='%23101010' %3E%3Ccircle cx='0' cy='850' r='50'/%3E%3Ccircle cx='100' cy='850' r='50'/%3E%3C/g%3E%3Ccircle fill='%23111111' cx='50' cy='900' r='50'/%3E%3Cg fill='%23111111' %3E%3Ccircle cx='0' cy='950' r='50'/%3E%3Ccircle cx='100' cy='950' r='50'/%3E%3C/g%3E%3Ccircle fill='%23121212' cx='50' cy='1000' r='50'/%3E%3C/g%3E%3C/svg%3E") !important;
+  background-attachment: fixed !important;
+  background-size: contain !important;
+}
+#jj {
+  width: 100px;
+  height: 100px;
+
+  z-index: 1110;
+  margin-left: 2vw;
+  margin-top: calc(70vh - 110px);
+  position: absolute;
+}
+#jj > h1 {
+  color: white !important;
+}
+
+.leaflet-popup-content-wrapper {
+  /*   text-align: center;
+ */
+}
+.about-h4 {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.pop-btn {
+  margin-left: 1px !important;
+}
+.p-up {
+  height: 100px;
+}
+.slider,
+.example {
+  width: 300px;
+
+  margin: auto;
+  margin-top: 20%;
+  color: #121212;
+}
+.Alert {
+  margin-top: 15px !important;
+  border-radius: 15px !important;
+  margin-left: calc(50% - 76px) !important;
+  width: 175px !important;
+  display: inline-block !important;
+}
+#about-div {
+  width: 60vw;
+  margin: auto;
+  border: 3px solid #009494;
+  background-color: #121212;
+  padding: 20px;
+  border-radius: 20px;
+}
+h4,
+.h4 {
+  color: #ededed !important;
+}
+.slider {
+  border: 3px solid #009494;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.example {
+  margin-top: 10%;
+  margin-left: calc(50% - 155px);
+}
+h6 {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 0.8rem;
+}
+.dr-example-container {
+  margin-top: 5%;
+}
+button.btn.btn-outline-primary {
+  margin-left: 100px;
+}
+h1 {
+  color: #009494 !important;
+  text-align: center;
+  margin: revert;
+}
+.legend {
+  line-height: 18px;
+  color: #555;
+  padding: 10px;
+  border-radius: 10px;
+  max-width: 40vw;
+}
+.legend i {
+  width: 18px;
+  height: 18px;
+  float: left;
+  margin-right: 8px;
+  opacity: 0.7;
+}
+#month {
+  width: 17vw;
+  float: left;
+  margin: auto;
+  margin-left: 4vw;
+  margin-top: 4vh;
+}
+hr {
+  background-color: white;
+  margin-top: 10px !important;
+  margin-bottom: 10px !important;
+}
+
+@media screen and (max-width: 1000px) {
+  #jj {
+    margin-top: 47vh;
+    margin-left: 5vw;
+  }
+  h6 {
+    font-size: 0.75em !important;
+  }
+  h1 {
+    font-size: 2.5em !important;
+    line-height: 10px;
+  }
+  .legend i {
+    width: 10px !important;
+    height: 10px !important;
+  }
+  #home-div {
+    margin-top: 3vh !important;
+  }
+  .slider {
+    margin-top: -12vh;
+  }
+  .example {
+    margin-top: 10vh;
+  }
+  .legend {
+    line-height: 10px !important;
+    margin-right: 5px !important;
+    width: 30vw;
+    font-size: 0.9em !important;
+  }
+
+  #month {
+    width: 80vw;
+    margin-left: 10vw;
+  }
+  .map {
+    width: 90% !important;
+    height: 60vh !important;
+    margin-top: 3vh !important;
+  }
+
+  #about-div {
+    width: 90vw;
+  }
+}
+@media screen and (min-width: 1100px) {
+  .example {
+    margin-left: calc(50% - 185px);
+  }
+}
