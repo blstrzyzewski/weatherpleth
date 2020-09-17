@@ -21,9 +21,6 @@ function classifyData(data) {
   };
 }
 async function addFeature(geojson, month, year, variable) {
-  ////console.log('ssssssssssssssssssssssss',month,year,variable);
-  //named constructor
-
   const options = {
     method: "get",
     url: "/api/data_points",
@@ -34,11 +31,8 @@ async function addFeature(geojson, month, year, variable) {
     },
   };
 
-  //console.log(options);
   const res = await axios(options);
 
-  ////console.log(res.data)
-  let entry_map = {};
   let dataValues = [];
   for await (const item of res.data) {
     let name = item.location;
@@ -98,14 +92,13 @@ export async function getDataByLocation(
   return geojson;
 }
 export async function getGJS(year, variable, month) {
-  //console.log("llsllllsllll", year, variable, month);
   let geojsonId;
   if (variable == "sst_mean") {
     geojsonId = "oceanSubNew";
   } else {
     geojsonId = "worldWithSubdivisionsSimp";
   }
-  //console.log("sssssssssssssssssssssssssss", geojsonId);
+
   const options = {
     method: "get",
     url: "/api/geojson",
@@ -114,8 +107,6 @@ export async function getGJS(year, variable, month) {
     },
   };
   const res = await axios(options);
-
-  //console.log(res.data);
   let response = await addFeature(res.data, month, year, variable);
 
   return response;

@@ -1,15 +1,12 @@
-import React, { useState, useEffect, Fragment, createRef } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import Loader from "./Loader";
 import Select from "react-select";
-import { Map, TileLayer, GeoJSON, Popup } from "react-leaflet";
+import { Map, TileLayer, GeoJSON } from "react-leaflet";
 import NavBar from "./navbar";
 import Control from "react-leaflet-control";
 import { getGJS, getDataByCoords, getDataByLocation } from "./land-areas";
-import { Row, Col, Button } from "shards-react";
-import { set } from "core-js/fn/dict";
+import { Row, Col, Button, Alert } from "shards-react";
 
-let colorArray = ["#ca0020", "#f4a582", "#f7f7f7", "#92c5de", "#0571b0"];
-let colorArray2 = ["#08519c", "#3182bd", "#6baed6", "#bdd7e7", "#eff3ff"];
 function getColor(d, rangeArray, colorArray) {
   return d > rangeArray[4]
     ? colorArray[4]
@@ -49,11 +46,7 @@ const yearOptions = [
   { value: 2017, label: "2017" },
   { value: 2018, label: "2018" },
 ];
-const areaOptions = [
-  { value: "countriesWithSubdivisions", label: "Countries/subdivisions" },
-  { value: "countries", label: "Countries" },
-  { value: "USStates", label: "U.S. states" },
-];
+
 const variable_options = [
   { value: "pre_mean", label: "Precipitation" },
   { value: "sst_mean", label: "Sea temperature" },
@@ -85,7 +78,6 @@ const style = {
 };
 
 function MyMap(values) {
-  ////console.log(values.values, "sssssssssssssssssssssssssss");
   if (values.values.name == "Diurnal temperature range") {
     values.values.name = "Diurnal temp. range";
   }
@@ -97,13 +89,11 @@ function MyMap(values) {
   const [month, setMonth] = useState("JAN");
   const [year, setYear] = useState(2014);
   const [updating, setUpdating] = useState(false);
-  const [areas, setAreas] = useState("countriesWithSubdivisions");
+  const [dataError, setDataError] = useState(false);
   const [dataVar, setDataVar] = useState(values.values.dataType);
   const [name, setName] = useState(values.values.name);
   const [update, setUpdate] = useState(false);
-  const [featureOptions, setFeatureOptions] = useState(
-    getFeatureOptions(featureMap[dataVar.slice(0, 3)], colorArray)
-  );
+  const [featureOptions, setFeatureOptions] = useState(null);
   const [statesZoom, setStatesZoom] = useState([]);
   const [loading, setLoading] = useState(true);
   let dataset;
@@ -116,9 +106,6 @@ function MyMap(values) {
 
   useEffect(() => {
     setUpdating(true);
-    if (states.features) {
-      console.log("states", states.features.length);
-    }
     if (update) {
       console.log("op");
       if (update > 1) {
@@ -147,7 +134,7 @@ function MyMap(values) {
           isMounted = false;
         };
       } catch (err) {
-        //console.log(err);
+        setDataError(true);
       }
     };
     fetchData();
@@ -183,10 +170,8 @@ function MyMap(values) {
   };
 
   const position = [20, 0];
-  ////console.log(states)
 
   const handleVarChange = (selectedOption) => {
-    //console.log(selectedOption);
     setStatesZoom([]);
     setKey2(getRandomInt(100000));
     setDataVar(selectedOption.value);
@@ -207,7 +192,7 @@ function MyMap(values) {
       year
     );
     setStatesZoom(data);
-    console.log(data, "gggggggggggggggggggg", states);
+
     setKey2(getRandomInt(10000000));
   }
 
@@ -216,29 +201,17 @@ function MyMap(values) {
       <NavBar />
       {loading ? (
         <Loader />
+      ) : dataError ? (
+        <Alert>
+          An error occured processing your request. Click{" "}
+          <a href="https://weatherpleth.com"> here</a> to return to the
+          homepage.
+        </Alert>
       ) : (
         <Fragment>
           <Map
-            /* onViewportChanged={async (viewport) => {
-              if (viewport.zoom > 4) {
-                console.log(states.length);
-                const res = await getDataByCoords(
-                  viewport.center,
-                  dataVar.slice(0, 3),
-                  month,
-                  year,
-                  states
-                );
-                setStatesZoom(res);
-                setZoomState(true);
-                console.log(states.length);
-                setUpdate(1);
-              }
-            }} */
             className="map"
             center={position}
-            // maxBounds= {[[40,-120],[40,120],[-40,120],[-40,-120]]}
-            // maxBoundsViscosity= {'1.0'}
             zoom="1.5"
             style={{
               border: "2px solid white",
@@ -397,21 +370,6 @@ function MyMap(values) {
                   }}
                 />
               </Col>
-              {/*               <Col>
-                <Select
-                  className="map-dropdown"
-                  id="month"
-                  // value={selectedOption}
-                  onChange={(selectedOption) => {
-                    setAreas(selectedOption.value);
-                  }}
-                  options={areaOptions}
-                  defaultValue={{
-                    label: "Countries/subivisions",
-                    value: "countriesWithSubdivisions",
-                  }}
-                />
-              </Col> */}
             </Row>
           </div>
           <div style={{ height: "100px" }}></div>
@@ -421,11 +379,5 @@ function MyMap(values) {
     </Fragment>
   );
 }
-/*
-    return(
-        map(states.features)
-    )
-
-*/
 
 export default MyMap;

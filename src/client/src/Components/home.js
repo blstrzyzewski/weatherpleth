@@ -4,11 +4,7 @@ import Select from "react-select";
 import ReactDOM from "react-dom";
 import { Button, Container, Row, Col, Alert } from "shards-react";
 import NavBar from "./navbar";
-const dataset_options = [
-  { value: 1995, label: "1995" },
-  { value: 2011, label: "2011" },
-  { value: "vanilla", label: "Vanilla" },
-];
+
 const variable_options = [
   { value: "pre_mean", label: "Precipitation" },
   { value: "sst_mean", label: "Sea temperature" },
@@ -17,18 +13,13 @@ const variable_options = [
   { value: "frs_mean", label: "frost days" },
 ];
 function Home() {
-  const [state, setState] = React.useState();
-  const [dataType, setDataType] = React.useState({ value: "empty" });
-  const [alert, setAlert] = React.useState(false);
+  const [dataType, setDataType] = useState({ value: "empty" });
+  const [alert, setAlert] = useState(false);
   const handleChange = (selectedOption) => {
     setDataType(selectedOption);
   };
-  const handleYear = (selectedOption) => {
-    setState(selectedOption);
-  };
-  //   const { selectedOption } = this.state;
+
   const renderMap = async () => {
-    //DataList(dataType)
     if (dataType.value === "empty") {
       setAlert(true);
       setTimeout(() => {
